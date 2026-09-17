@@ -1,0 +1,3 @@
+image:
+  repository: ghcr.io/jaguzaro/transactions-service
+  tag: v1.0.0
