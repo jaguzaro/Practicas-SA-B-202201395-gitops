@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cronjobs
+  name: gateway
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "2"
@@ -12,11 +12,11 @@ spec:
   sources:
     - repoURL: git@github.com:jaguzaro/Practicas-SA-B-202201395.git
       targetRevision: main
-      path: P8/charts/cronjobs
+      path: P8/charts/gateway
       helm:
         valueFiles:
           - values-prod.yaml
-          - $values/values/cronjobs.yaml
+          - $values/values/prod/gateway.yaml
     - repoURL: https://github.com/jaguzaro/Practicas-SA-B-202201395-gitops.git
       targetRevision: main
       ref: values

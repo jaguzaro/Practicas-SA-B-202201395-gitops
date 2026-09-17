@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: transactions-service
+  name: authz-service
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -12,11 +12,11 @@ spec:
   sources:
     - repoURL: git@github.com:jaguzaro/Practicas-SA-B-202201395.git
       targetRevision: main
-      path: P8/charts/transactions-service
+      path: P8/charts/authz-service
       helm:
         valueFiles:
           - values-prod.yaml
-          - $values/values/transactions-service.yaml
+          - $values/values/prod/authz-service.yaml
     - repoURL: https://github.com/jaguzaro/Practicas-SA-B-202201395-gitops.git
       targetRevision: main
       ref: values

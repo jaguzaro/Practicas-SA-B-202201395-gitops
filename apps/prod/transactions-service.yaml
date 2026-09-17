@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: transactions-service
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: git@github.com:jaguzaro/Practicas-SA-B-202201395.git
+      targetRevision: main
+      path: P8/charts/transactions-service
+      helm:
+        valueFiles:
+          - values-prod.yaml
+          - $values/values/prod/transactions-service.yaml
+    - repoURL: https://github.com/jaguzaro/Practicas-SA-B-202201395-gitops.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sa-p8
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

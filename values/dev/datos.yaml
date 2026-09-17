@@ -1,0 +1,10 @@
+postgresql:
+  primary:
+    persistence:
+      storageClass: standard-rwo
+      size: 1Gi
+
+rabbitmq:
+  persistence:
+    storageClass: standard-rwo
+    size: 1Gi

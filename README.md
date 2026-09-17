@@ -4,9 +4,11 @@ Este repositorio es la unica fuente de verdad de lo que corre en el namespace sa
 
 ## Como esta organizado
 
-Una Application raiz, creada por Terraform desde el repositorio de codigo, apunta a la carpeta apps, donde hay una Application por componente de la plataforma. Cada una toma su chart de Helm desde el repositorio de codigo y sus valores de despliegue desde la carpeta values de este repositorio.
+Hay dos ambientes, produccion en el namespace sa-p8 y desarrollo en sa-p8-dev, y cada carpeta se divide en prod y dev.
 
-La carpeta values contiene un archivo por componente con la imagen y la etiqueta que debe correr. Son los archivos que el pipeline de integracion modifica mediante un pull request cuando publica una version nueva. La carpeta secretos contiene las credenciales de la plataforma cifradas con Sealed Secrets, que solo el controlador del cluster puede descifrar.
+Una Application raiz, creada por Terraform desde el repositorio de codigo, apunta a la carpeta apps, donde hay una Application por componente y por ambiente. Cada una toma su chart de Helm desde el repositorio de codigo, el archivo de valores del ambiente que corresponde dentro del chart, y encima los valores de despliegue de la carpeta values de este repositorio.
+
+La carpeta values contiene un archivo por componente y ambiente con la imagen y la etiqueta que debe correr. Son los archivos que el pipeline modifica mediante un pull request. Un push a la rama principal abre uno contra desarrollo con una version de prelanzamiento, y una etiqueta de version abre uno contra produccion. La carpeta secretos contiene las credenciales de cada ambiente cifradas con Sealed Secrets, que solo el controlador del cluster puede descifrar, junto con el certificado publico con el que se cifran.
 
 ## Como llega un cambio al cluster
 

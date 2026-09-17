@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: authz-service
+  name: datos
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "0"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -12,11 +12,11 @@ spec:
   sources:
     - repoURL: git@github.com:jaguzaro/Practicas-SA-B-202201395.git
       targetRevision: main
-      path: P8/charts/authz-service
+      path: P8/charts/datos
       helm:
         valueFiles:
           - values-prod.yaml
-          - $values/values/authz-service.yaml
+          - $values/values/prod/datos.yaml
     - repoURL: https://github.com/jaguzaro/Practicas-SA-B-202201395-gitops.git
       targetRevision: main
       ref: values
