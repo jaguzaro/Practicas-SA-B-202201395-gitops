@@ -1,3 +1,3 @@
 image:
   repository: ghcr.io/jaguzaro/cronjobs
-  tag: v1.0.0
+  tag: v1.0.1-dev.d08862e
