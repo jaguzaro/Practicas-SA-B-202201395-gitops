@@ -10,7 +10,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: https://github.com/jaguzaro/Practicas-SA-B-202201395.git
+    - repoURL: git@github.com:jaguzaro/Practicas-SA-B-202201395.git
       targetRevision: main
       path: P8/charts/audit-service
       helm:
