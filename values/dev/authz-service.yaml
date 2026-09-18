@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/jaguzaro/authz-service
-  tag: v1.0.1-dev.c288db3
+  tag: v1.1.1-dev.d94a965
 
 resources:
   limits: null
