@@ -15,8 +15,10 @@ spec:
     targetRevision: 3.9.1
     helm:
       values: |
-        crds:
-          customLabels:
+        kyverno-api:
+          labels:
+            practica: p9
+          annotations:
             practica: p9
         admissionController:
           replicas: 1
