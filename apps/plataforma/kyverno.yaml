@@ -15,8 +15,9 @@ spec:
     targetRevision: 3.9.1
     helm:
       values: |
-        customLabels:
-          practica: p9
+        crds:
+          customLabels:
+            practica: p9
         admissionController:
           replicas: 1
           initContainer:
