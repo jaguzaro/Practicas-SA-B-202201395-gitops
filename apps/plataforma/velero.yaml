@@ -51,6 +51,8 @@ spec:
               bucket: softwareavanz-respaldos
               prefix: velero
               default: true
+              config:
+                serviceAccount: velero-respaldos@softwareavanz.iam.gserviceaccount.com
           volumeSnapshotLocation: []
         snapshotsEnabled: false
         schedules:
