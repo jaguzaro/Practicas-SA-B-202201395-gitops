@@ -1,0 +1,88 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://vmware-tanzu.github.io/helm-charts
+    chart: velero
+    targetRevision: 12.2.0
+    helm:
+      values: |
+        initContainers:
+          - name: velero-plugin-for-gcp
+            image: velero/velero-plugin-for-gcp:v1.14.3
+            volumeMounts:
+              - name: plugins
+                mountPath: /target
+        credentials:
+          useSecret: false
+        serviceAccount:
+          server:
+            create: true
+            name: velero
+            annotations:
+              iam.gke.io/gcp-service-account: velero-respaldos@softwareavanz.iam.gserviceaccount.com
+        deployNodeAgent: true
+        nodeAgent:
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        configuration:
+          defaultVolumesToFsBackup: true
+          backupStorageLocation:
+            - name: respaldos
+              provider: gcp
+              bucket: softwareavanz-respaldos
+              prefix: velero
+              default: true
+          volumeSnapshotLocation: []
+        snapshotsEnabled: false
+        schedules:
+          diario:
+            disabled: false
+            schedule: "0 6 * * *"
+            useOwnerReferencesInBackup: false
+            template:
+              ttl: 168h
+              includedNamespaces:
+                - sa-p8
+                - sa-p8-dev
+                - sealed-secrets
+              snapshotVolumes: false
+              defaultVolumesToFsBackup: true
+          cadaseishoras:
+            disabled: false
+            schedule: "0 */6 * * *"
+            useOwnerReferencesInBackup: false
+            template:
+              ttl: 72h
+              includedNamespaces:
+                - sa-p8
+              snapshotVolumes: false
+              defaultVolumesToFsBackup: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
