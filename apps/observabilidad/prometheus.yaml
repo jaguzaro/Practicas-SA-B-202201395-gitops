@@ -72,7 +72,7 @@ spec:
               type: tempo
               uid: tempo
               access: proxy
-              url: http://tempo.observabilidad:3100
+              url: http://tempo.observabilidad:3200
               jsonData:
                 tracesToLogsV2:
                   datasourceUid: loki
