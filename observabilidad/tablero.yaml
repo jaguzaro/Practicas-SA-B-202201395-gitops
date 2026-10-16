@@ -327,7 +327,9 @@ data:
             "defaults": {
               "unit": "percentunit",
               "min": 0,
-              "softMax": 0.05
+              "custom": {
+                "axisSoftMax": 0.05
+              }
             }
           }
         },
