@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/jaguzaro/transactions-service
-  tag: v1.4.0
+  tag: v1.4.1
 
 resources:
   requests:
