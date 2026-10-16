@@ -318,7 +318,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum by (servicio) (rate(http_server_requests_total{namespace=\"sa-p8\", servicio=~\"$servicio\", familia=\"5xx\"}[5m])) / clamp_min(sum by (servicio) (rate(http_server_requests_total{namespace=\"sa-p8\", servicio=~\"$servicio\"}[5m])), 0.001)",
+              "expr": "(sum by (servicio) (rate(http_server_requests_total{namespace=\"sa-p8\", servicio=~\"$servicio\", familia=\"5xx\"}[5m])) or sum by (servicio) (rate(http_server_requests_total{namespace=\"sa-p8\", servicio=~\"$servicio\"}[5m]) * 0)) / clamp_min(sum by (servicio) (rate(http_server_requests_total{namespace=\"sa-p8\", servicio=~\"$servicio\"}[5m])), 0.001)",
               "legendFormat": "{{servicio}}",
               "refId": "A"
             }
@@ -345,7 +345,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum by (servicio, ruta, codigo) (rate(http_server_requests_total{namespace=\"sa-p8\", servicio=~\"$servicio\", familia=\"5xx\"}[5m]))",
+              "expr": "sum by (servicio, ruta, codigo) (rate(http_server_requests_total{namespace=\"sa-p8\", servicio=~\"$servicio\", familia!=\"2xx\"}[5m]))",
               "legendFormat": "{{servicio}} {{ruta}} {{codigo}}",
               "refId": "A"
             }
