@@ -1,0 +1,108 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: alloy
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-8"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: alloy
+    targetRevision: 1.13.1
+    helm:
+      values: |
+        controller:
+          type: daemonset
+        alloy:
+          resources:
+            requests:
+              cpu: 30m
+              memory: 128Mi
+            limits:
+              memory: 384Mi
+          configMap:
+            content: |
+              discovery.kubernetes "pods" {
+                role = "pod"
+              }
+
+              discovery.relabel "pods" {
+                targets = discovery.kubernetes.pods.targets
+
+                rule {
+                  source_labels = ["__meta_kubernetes_namespace"]
+                  regex         = "sa-p8|sa-p8-dev"
+                  action        = "keep"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_namespace"]
+                  target_label  = "namespace"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_name"]
+                  target_label  = "pod"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_label_app"]
+                  target_label  = "servicio"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_container_name"]
+                  target_label  = "contenedor"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+                  separator     = "/"
+                  action        = "replace"
+                  replacement   = "/var/log/pods/*$1/*.log"
+                  target_label  = "__path__"
+                }
+              }
+
+              loki.source.kubernetes "pods" {
+                targets    = discovery.relabel.pods.output
+                forward_to = [loki.process.estructurado.receiver]
+              }
+
+              loki.process "estructurado" {
+                forward_to = [loki.write.destino.receiver]
+
+                stage.json {
+                  expressions = {
+                    nivel    = "level",
+                    traza    = "trace_id",
+                    servicio = "service",
+                  }
+                }
+
+                stage.labels {
+                  values = {
+                    nivel = "nivel",
+                  }
+                }
+
+                stage.structured_metadata {
+                  values = {
+                    trace_id = "traza",
+                  }
+                }
+              }
+
+              loki.write "destino" {
+                endpoint {
+                  url = "http://loki-gateway.observabilidad/loki/api/v1/push"
+                }
+              }
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observabilidad
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

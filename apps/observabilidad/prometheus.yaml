@@ -1,0 +1,120 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-9"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 92.9.0
+    helm:
+      values: |
+        crds:
+          enabled: true
+        nodeExporter:
+          enabled: false
+        kubeStateMetrics:
+          enabled: true
+        kube-state-metrics:
+          resources:
+            requests:
+              cpu: 20m
+              memory: 96Mi
+            limits:
+              memory: 256Mi
+        defaultRules:
+          create: false
+        alertmanager:
+          alertmanagerSpec:
+            replicas: 1
+            retention: 24h
+            resources:
+              requests:
+                cpu: 20m
+                memory: 96Mi
+              limits:
+                memory: 256Mi
+        grafana:
+          enabled: true
+          adminPassword: observabilidad
+          defaultDashboardsEnabled: false
+          service:
+            type: ClusterIP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+              searchNamespace: ALL
+          additionalDataSources:
+            - name: Loki
+              type: loki
+              access: proxy
+              url: http://loki-gateway.observabilidad
+              jsonData:
+                derivedFields:
+                  - name: traza
+                    matcherRegex: '"trace_id":"(\w+)"'
+                    url: '$${__value.raw}'
+                    datasourceUid: tempo
+            - name: Tempo
+              type: tempo
+              uid: tempo
+              access: proxy
+              url: http://tempo.observabilidad:3100
+              jsonData:
+                tracesToLogsV2:
+                  datasourceUid: loki
+                  spanStartTimeShift: -2m
+                  spanEndTimeShift: 2m
+                  filterByTraceID: true
+        prometheusOperator:
+          resources:
+            requests:
+              cpu: 20m
+              memory: 96Mi
+            limits:
+              memory: 256Mi
+        prometheus:
+          prometheusSpec:
+            replicas: 1
+            retention: 12h
+            scrapeInterval: 15s
+            evaluationInterval: 15s
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+            resources:
+              requests:
+                cpu: 150m
+                memory: 768Mi
+              limits:
+                memory: 2Gi
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  accessModes: [ReadWriteOnce]
+                  resources:
+                    requests:
+                      storage: 5Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observabilidad
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
